@@ -7,6 +7,7 @@ const Register = () => {
   const [formData, setFormData] = useState({
     name: "",
     title: "",
+    username: "",
     bio: "",
     email: "",
     password: "",
@@ -22,10 +23,11 @@ const Register = () => {
       [name]: value,
     });
   };
-
+  console.log(process.env);
   const validateForm = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.username.trim()) newErrors.username = "User Name is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
     if (!formData.password) newErrors.password = "Password is required";
     else if (formData.password.length < 6) {
@@ -44,9 +46,14 @@ const Register = () => {
 
     setIsLoading(true);
     try {
-      const response = await axios.post("http://localhost:3000/auth/register", {
+      const registerEndPoint =
+        process.env.REACT_APP_BASE_URL_API +
+        process.env.REACT_APP_REGISTER_URL_API;
+      console.log(registerEndPoint);
+      const response = await axios.post(registerEndPoint, {
         fullName: formData.name,
         email: formData.email,
+        userName: formData.username,
         bio: formData.bio,
         title: formData.title,
         profilePic: "",
@@ -54,8 +61,11 @@ const Register = () => {
       });
 
       localStorage.setItem("token", response.data.token);
+      console.log("Registered");
+
       navigate("/login");
     } catch (error) {
+      console.error("Registration error:", error);
       setErrors({
         ...errors,
         api:
@@ -82,6 +92,17 @@ const Register = () => {
           onChange={handleChange}
           error={errors.name}
           placeholder="Enter your full name"
+          required
+        />
+        <FieldInput
+          label="User Name"
+          type="text"
+          id="username"
+          name="username"
+          value={formData.username}
+          onChange={handleChange}
+          error={errors.username}
+          placeholder="Enter your User Name"
           required
         />
 
