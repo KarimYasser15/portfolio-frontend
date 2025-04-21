@@ -4,6 +4,7 @@ import Login from "./auth/Login";
 import "./App.css";
 import Home from "./home/Home";
 import Portfolio from "./portfolio/Portfolio";
+import Profile from "./profile/Profile";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             element={<Portfolio mode="create" />}
           />
           <Route path="/edit-portfolio" element={<Portfolio mode="edit" />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </Router>
     </div>
