@@ -3,7 +3,7 @@ import Register from "./auth/Register";
 import Login from "./auth/Login";
 import "./App.css";
 import Home from "./home/Home";
-import CreatePortfolio from "./portfolio/CreatePortfolio";
+import CreatePortfolio from "./portfolio/create/CreatePortfolio";
 
 function App() {
   return (
