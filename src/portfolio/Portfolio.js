@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import "./CreatePortfolio.css";
+import "./Portfolio.css";
 
-const CreatePortfolio = () => {
+const Portfolio = ({ mode = "create" }) => {
   const navigate = useNavigate();
   const userData = JSON.parse(localStorage.getItem("user"));
 
@@ -12,71 +12,88 @@ const CreatePortfolio = () => {
     contacts: [{ platform: "email", displayContact: "" }],
     cv: "",
   });
+  const [loading, setLoading] = useState(mode === "edit");
 
-  const handleProjectChange = (index, e) => {
+  useEffect(() => {
+    if (mode === "edit") {
+      const fetchPortfolio = async () => {
+        try {
+          const endpoint =
+            process.env.REACT_APP_BASE_URL + `portfolio/${userData.userName}`;
+          const res = await axios.get(endpoint, {
+            headers: {
+              Authorization: "Bearer " + userData.token,
+            },
+          });
+          const { projects, contacts, cv } = res.data.portfolioExist;
+          setFormData({
+            projects: projects.length
+              ? projects
+              : [{ name: "", description: "" }],
+            contacts: contacts.length
+              ? contacts
+              : [{ platform: "email", displayContact: "" }],
+            cv: cv || "",
+          });
+        } catch (err) {
+          console.error("Failed to load portfolio", err);
+          alert("Failed to load portfolio");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchPortfolio();
+    }
+  }, [mode]);
+
+  const handleChange = (group, index, e) => {
     const { name, value } = e.target;
-    const projects = [...formData.projects];
-    projects[index][name] = value;
-    setFormData({ ...formData, projects });
+    const updated = [...formData[group]];
+    updated[index][name] = value;
+    setFormData({ ...formData, [group]: updated });
   };
 
-  const handleContactChange = (index, e) => {
-    const { name, value } = e.target;
-    const contacts = [...formData.contacts];
-    contacts[index][name] = value;
-    setFormData({ ...formData, contacts });
-  };
+  const addItem = (group, defaultItem) =>
+    setFormData({ ...formData, [group]: [...formData[group], defaultItem] });
 
-  const addProject = () => {
-    setFormData({
-      ...formData,
-      projects: [...formData.projects, { name: "", description: "" }],
-    });
-  };
-
-  const removeProject = (index) => {
-    const projects = [...formData.projects];
-    projects.splice(index, 1);
-    setFormData({ ...formData, projects });
-  };
-
-  const addContact = () => {
-    setFormData({
-      ...formData,
-      contacts: [
-        ...formData.contacts,
-        { platform: "email", displayContact: "" },
-      ],
-    });
-  };
-
-  const removeContact = (index) => {
-    const contacts = [...formData.contacts];
-    contacts.splice(index, 1);
-    setFormData({ ...formData, contacts });
+  const removeItem = (group, index) => {
+    const updated = [...formData[group]];
+    updated.splice(index, 1);
+    setFormData({ ...formData, [group]: updated });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const createPortfolioEndPoint =
+      const portfolioEndPoint =
         process.env.REACT_APP_BASE_URL + `portfolio/${userData.userId}`;
-
-      await axios.post(createPortfolioEndPoint, formData, {
-        headers: {
-          Authorization: "Bearer " + userData.token,
-        },
-      });
+      if (mode === "create") {
+        await axios.post(portfolioEndPoint, formData, {
+          headers: { Authorization: "Bearer " + userData.token },
+        });
+        alert("Portfolio created!");
+      } else {
+        await axios.put(portfolioEndPoint, formData, {
+          headers: { Authorization: "Bearer " + userData.token },
+        });
+        alert("Portfolio updated!");
+      }
       navigate("/home");
     } catch (err) {
-      console.error("Error creating portfolio:", err);
-      alert(err.response?.data?.message || "Failed to create portfolio");
+      console.error(`${mode === "create" ? "Create" : "Update"} failed:`, err);
+      alert(err.response?.data?.message || "Something went wrong");
     }
   };
 
+  if (loading)
+    return <div className="create-portfolio-container">Loading...</div>;
+
   return (
     <div className="create-portfolio-container">
-      <h1>Create Your Portfolio</h1>
+      <h1>
+        {mode === "create" ? "Create Your Portfolio" : "Edit Your Portfolio"}
+      </h1>
 
       <form onSubmit={handleSubmit} className="portfolio-form">
         <div className="form-section">
@@ -90,7 +107,7 @@ const CreatePortfolio = () => {
                     type="text"
                     name="name"
                     value={project.name}
-                    onChange={(e) => handleProjectChange(index, e)}
+                    onChange={(e) => handleChange("projects", index, e)}
                     required
                   />
                 </label>
@@ -101,7 +118,7 @@ const CreatePortfolio = () => {
                   <textarea
                     name="description"
                     value={project.description}
-                    onChange={(e) => handleProjectChange(index, e)}
+                    onChange={(e) => handleChange("projects", index, e)}
                     required
                   />
                 </label>
@@ -109,7 +126,7 @@ const CreatePortfolio = () => {
               {formData.projects.length > 1 && (
                 <button
                   type="button"
-                  onClick={() => removeProject(index)}
+                  onClick={() => removeItem("projects", index)}
                   className="remove-btn"
                 >
                   Remove Project
@@ -117,7 +134,11 @@ const CreatePortfolio = () => {
               )}
             </div>
           ))}
-          <button type="button" onClick={addProject} className="add-btn">
+          <button
+            type="button"
+            onClick={() => addItem("projects", { name: "", description: "" })}
+            className="add-btn"
+          >
             + Add Another Project
           </button>
         </div>
@@ -132,12 +153,12 @@ const CreatePortfolio = () => {
                   <select
                     name="platform"
                     value={contact.platform}
-                    onChange={(e) => handleContactChange(index, e)}
+                    onChange={(e) => handleChange("contacts", index, e)}
                   >
                     <option value="email">Email</option>
                     <option value="phone">Phone</option>
-                    <option value="linkedin">Linkedin</option>
-                    <option value="github">Github</option>
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="github">GitHub</option>
                     <option value="other">Other</option>
                   </select>
                 </label>
@@ -149,7 +170,7 @@ const CreatePortfolio = () => {
                     type="text"
                     name="displayContact"
                     value={contact.displayContact}
-                    onChange={(e) => handleContactChange(index, e)}
+                    onChange={(e) => handleChange("contacts", index, e)}
                     required
                   />
                 </label>
@@ -157,7 +178,7 @@ const CreatePortfolio = () => {
               {formData.contacts.length > 1 && (
                 <button
                   type="button"
-                  onClick={() => removeContact(index)}
+                  onClick={() => removeItem("contacts", index)}
                   className="remove-btn"
                 >
                   Remove Contact
@@ -165,7 +186,13 @@ const CreatePortfolio = () => {
               )}
             </div>
           ))}
-          <button type="button" onClick={addContact} className="add-btn">
+          <button
+            type="button"
+            onClick={() =>
+              addItem("contacts", { platform: "email", displayContact: "" })
+            }
+            className="add-btn"
+          >
             + Add Another Contact
           </button>
         </div>
@@ -190,7 +217,7 @@ const CreatePortfolio = () => {
 
         <div className="form-actions">
           <button type="submit" className="add-btn">
-            Create Portfolio
+            {mode === "create" ? "Create Portfolio" : "Save Changes"}
           </button>
           <button
             type="button"
@@ -205,4 +232,4 @@ const CreatePortfolio = () => {
   );
 };
 
-export default CreatePortfolio;
+export default Portfolio;
