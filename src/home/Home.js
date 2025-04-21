@@ -37,9 +37,7 @@ const Home = () => {
       try {
         const userData = JSON.parse(localStorage.getItem("user"));
         const getPortfolioEndPoint =
-          process.env.REACT_APP_BASE_URL +
-          process.env.REACT_APP_PORTFOLIO_ENPOINT +
-          userData.userName;
+          process.env.REACT_APP_BASE_URL + `portfolio/${userData.userName}`;
 
         const response = await axios.get(getPortfolioEndPoint, {
           headers: {

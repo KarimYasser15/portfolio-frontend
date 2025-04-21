@@ -38,8 +38,7 @@ const Login = () => {
 
     setIsLoading(true);
     try {
-      const loginEndPoint =
-        process.env.REACT_APP_BASE_URL + process.env.REACT_APP_LOGIN_ENPOINT;
+      const loginEndPoint = process.env.REACT_APP_BASE_URL + "auth/login";
       const response = await axios.post(loginEndPoint, {
         email: formData.email,
         password: formData.password,

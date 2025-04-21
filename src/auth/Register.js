@@ -46,8 +46,7 @@ const Register = () => {
 
     setIsLoading(true);
     try {
-      const registerEndPoint =
-        process.env.REACT_APP_BASE_URL + process.env.REACT_APP_REGISTER_ENPOINT;
+      const registerEndPoint = process.env.REACT_APP_BASE_URL + "auth/register";
       console.log(registerEndPoint);
       const response = await axios.post(registerEndPoint, {
         fullName: formData.name,
@@ -157,7 +156,7 @@ const Register = () => {
       </form>
 
       <div className="auth-footer">
-        Already have an account? <Link to="/login">Login in</Link>
+        Already have an account? <Link to="/login">Log in</Link>
       </div>
     </div>
   );

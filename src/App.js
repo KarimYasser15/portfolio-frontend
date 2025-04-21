@@ -3,6 +3,7 @@ import Register from "./auth/Register";
 import Login from "./auth/Login";
 import "./App.css";
 import Home from "./home/Home";
+import CreatePortfolio from "./portfolio/CreatePortfolio";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/create-portfolio" element={<CreatePortfolio />} />
         </Routes>
       </Router>
     </div>
