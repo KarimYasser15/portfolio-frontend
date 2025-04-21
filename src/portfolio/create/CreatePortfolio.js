@@ -60,7 +60,7 @@ const CreatePortfolio = () => {
     e.preventDefault();
     try {
       const createPortfolioEndPoint =
-        process.env.REACT_APP_BASE_URL + `portfolio/${userData.userId}/create`;
+        process.env.REACT_APP_BASE_URL + `portfolio/${userData.userId}`;
 
       await axios.post(createPortfolioEndPoint, formData, {
         headers: {

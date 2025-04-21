@@ -44,9 +44,10 @@ const Home = () => {
             Authorization: "Bearer " + userData.token,
           },
         });
-        setPortfolio(response.data);
+        setPortfolio(response.data?.portfolioExist ? response.data : null);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to fetch portfolio");
+        setPortfolio(null);
       } finally {
         setLoading(false);
       }
@@ -54,6 +55,30 @@ const Home = () => {
 
     fetchPortfolio();
   }, []);
+  const handleDeletePortfolio = async () => {
+    if (!window.confirm("Are you sure you want to delete your portfolio?"))
+      return;
+
+    try {
+      const userData = JSON.parse(localStorage.getItem("user"));
+      const deleteEndpoint =
+        process.env.REACT_APP_BASE_URL + `portfolio/${userData.userName}`;
+
+      await axios.delete(deleteEndpoint, {
+        headers: {
+          Authorization: "Bearer " + userData.token,
+        },
+      });
+
+      setPortfolio(null);
+      alert("Portfolio deleted successfully");
+    } catch (err) {
+      alert(
+        err.response?.data?.message ||
+          "Something went wrong while deleting portfolio"
+      );
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -82,6 +107,12 @@ const Home = () => {
           >
             {portfolio ? "Edit Portfolio" : "Create Portfolio"}
           </button>
+          {portfolio && (
+            <button onClick={handleDeletePortfolio} className="btn delete-btn">
+              Delete Portfolio
+            </button>
+          )}
+
           <button
             onClick={() => {
               localStorage.removeItem("user");
@@ -98,8 +129,6 @@ const Home = () => {
         <div className="main-container">
           {loading ? (
             <div>Loading...</div>
-          ) : error ? (
-            <div>Error: {error}</div>
           ) : portfolio ? (
             <div className="portfolio-card">
               <div className="portfolio-header">
