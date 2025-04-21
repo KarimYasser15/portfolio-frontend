@@ -47,8 +47,7 @@ const Register = () => {
     setIsLoading(true);
     try {
       const registerEndPoint =
-        process.env.REACT_APP_BASE_URL_API +
-        process.env.REACT_APP_REGISTER_URL_API;
+        process.env.REACT_APP_BASE_URL + process.env.REACT_APP_REGISTER_ENPOINT;
       console.log(registerEndPoint);
       const response = await axios.post(registerEndPoint, {
         fullName: formData.name,

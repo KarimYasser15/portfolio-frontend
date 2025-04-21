@@ -10,7 +10,7 @@ const Login = () => {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -39,14 +39,14 @@ const Login = () => {
     setIsLoading(true);
     try {
       const loginEndPoint =
-        process.env.REACT_APP_BASE_URL_API +
-        process.env.REACT_APP_LOGIN_URL_API;
+        process.env.REACT_APP_BASE_URL + process.env.REACT_APP_LOGIN_ENPOINT;
       const response = await axios.post(loginEndPoint, {
         email: formData.email,
         password: formData.password,
       });
 
-      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data));
+      navigate("/home");
     } catch (error) {
       setErrors({
         ...errors,
