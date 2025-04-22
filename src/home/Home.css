@@ -29,6 +29,10 @@
   cursor: pointer;
 }
 
+.search-btn {
+  background-color: #f3f4f6;
+  color: #03449f;
+}
 .profile-btn {
   background-color: #f3f4f6;
   color: #1f2937;

@@ -5,6 +5,7 @@ import "./App.css";
 import Home from "./home/Home";
 import Portfolio from "./portfolio/Portfolio";
 import Profile from "./profile/Profile";
+import SearchPortfolio from "./search/SearchPortfolio";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           />
           <Route path="/edit-portfolio" element={<Portfolio mode="edit" />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/search-portfolio" element={<SearchPortfolio />} />
         </Routes>
       </Router>
     </div>

@@ -36,7 +36,6 @@ const Portfolio = ({ mode = "create" }) => {
             cv: cv || "",
           });
         } catch (err) {
-          console.error("Failed to load portfolio", err);
           alert("Failed to load portfolio");
         } finally {
           setLoading(false);
@@ -72,16 +71,13 @@ const Portfolio = ({ mode = "create" }) => {
         await axios.post(portfolioEndPoint, formData, {
           headers: { Authorization: "Bearer " + userData.token },
         });
-        alert("Portfolio created!");
       } else {
         await axios.put(portfolioEndPoint, formData, {
           headers: { Authorization: "Bearer " + userData.token },
         });
-        alert("Portfolio updated!");
       }
       navigate("/home");
     } catch (err) {
-      console.error(`${mode === "create" ? "Create" : "Update"} failed:`, err);
       alert(err.response?.data?.message || "Something went wrong");
     }
   };
@@ -195,24 +191,6 @@ const Portfolio = ({ mode = "create" }) => {
           >
             + Add Another Contact
           </button>
-        </div>
-
-        <div className="form-section">
-          <h2>CV/Resume</h2>
-          <div className="input-row">
-            <label>
-              CV URL (optional):
-              <input
-                type="url"
-                name="cv"
-                value={formData.cv}
-                onChange={(e) =>
-                  setFormData({ ...formData, cv: e.target.value })
-                }
-                placeholder="https://example.com/my-cv.pdf"
-              />
-            </label>
-          </div>
         </div>
 
         <div className="form-actions">

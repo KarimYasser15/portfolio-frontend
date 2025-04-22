@@ -7,8 +7,6 @@ const Home = () => {
   const [portfolio, setPortfolio] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showHeader, setShowHeader] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(window.scrollY);
   const userData = JSON.parse(localStorage.getItem("user"));
 
   const navigate = useNavigate();
@@ -18,7 +16,6 @@ const Home = () => {
       try {
         const getPortfolioEndPoint =
           process.env.REACT_APP_BASE_URL + `portfolio/${userData.userName}`;
-        console.log("test");
         const response = await axios.get(getPortfolioEndPoint, {
           headers: {
             Authorization: "Bearer " + userData.token,
@@ -65,6 +62,12 @@ const Home = () => {
       <div className="header-container">
         <h1 className="header-title">Portfolio</h1>
         <div className="header-buttons">
+          <button
+            onClick={() => navigate("/search-portfolio")}
+            className="btn search-btn"
+          >
+            Search Portfolio
+          </button>
           <Link to="/profile" className="btn profile-btn">
             Profile
           </Link>
