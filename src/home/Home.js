@@ -9,36 +9,16 @@ const Home = () => {
   const [error, setError] = useState(null);
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(window.scrollY);
+  const userData = JSON.parse(localStorage.getItem("user"));
 
   const navigate = useNavigate();
-
-  const navigation = [
-    { name: "Home", href: "/", current: true },
-    { name: "Profile", href: "/profile", current: false },
-  ];
-
-  const userNavigation = [
-    {
-      name: portfolio ? "Edit Portfolio" : "Create Portfolio",
-      onClick: () =>
-        navigate(portfolio ? "/edit-portfolio" : "/create-portfolio"),
-    },
-    {
-      name: "Sign out",
-      onClick: () => {
-        localStorage.removeItem("user");
-        navigate("/login");
-      },
-    },
-  ];
 
   useEffect(() => {
     const fetchPortfolio = async () => {
       try {
-        const userData = JSON.parse(localStorage.getItem("user"));
         const getPortfolioEndPoint =
           process.env.REACT_APP_BASE_URL + `portfolio/${userData.userName}`;
-
+        console.log("test");
         const response = await axios.get(getPortfolioEndPoint, {
           headers: {
             Authorization: "Bearer " + userData.token,
@@ -55,12 +35,12 @@ const Home = () => {
 
     fetchPortfolio();
   }, []);
+
   const handleDeletePortfolio = async () => {
     if (!window.confirm("Are you sure you want to delete your portfolio?"))
       return;
 
     try {
-      const userData = JSON.parse(localStorage.getItem("user"));
       const deleteEndpoint =
         process.env.REACT_APP_BASE_URL + `portfolio/${userData.userName}`;
 
@@ -79,17 +59,6 @@ const Home = () => {
       );
     }
   };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setShowHeader(currentScrollY < lastScrollY || currentScrollY < 100);
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
 
   return (
     <div className="home">
@@ -112,7 +81,6 @@ const Home = () => {
               Delete Portfolio
             </button>
           )}
-
           <button
             onClick={() => {
               localStorage.removeItem("user");
@@ -127,20 +95,35 @@ const Home = () => {
 
       <main className="main">
         <div className="main-container">
-          {loading ? (
-            <div>Loading...</div>
-          ) : portfolio ? (
-            <div className="portfolio-card">
-              <div className="portfolio-header">
-                <h1>{portfolio.user.fullName}'s Portfolio</h1>
-                <h2>{portfolio.user.title}</h2>
-                <h3>{portfolio.user.bio}</h3>
-                <p>
-                  Views:{" "}
-                  {Object.keys(portfolio.portfolioExist.numberOfView).length}
-                </p>
+          <div className="portfolio-header-with-images">
+            {userData.coverPicture && (
+              <div className="cover-image">
+                {userData.coverPicture && (
+                  <img
+                    src={userData.coverPicture}
+                    alt="Profile"
+                    className="profile-img"
+                  />
+                )}
               </div>
+            )}
 
+            <div className="profile-info">
+              {userData.profilePicture && (
+                <img
+                  src={userData.profilePicture}
+                  alt="Profile"
+                  className="profile-img"
+                />
+              )}
+              <h1>{userData.fullName}</h1>
+              <h2>{userData.title}</h2>
+              <h3>{userData.bio}</h3>
+            </div>
+          </div>
+          {portfolio ? (
+            <div className="portfolio-card">
+              <p>Views:{portfolio.portfolioExist.numberOfView.length}</p>
               <div className="portfolio-projects">
                 <h3>Projects</h3>
                 <div className="projects-grid">
