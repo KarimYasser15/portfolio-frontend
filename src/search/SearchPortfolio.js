@@ -26,6 +26,11 @@ const SearchPortfolio = () => {
       setError("Portfolio not found");
     }
   };
+  const handleCVAction = (action = "view") => {
+    if (!result.portfolioExist?.cv) return;
+
+    window.open(result.portfolioExist.cv, "_blank");
+  };
 
   return (
     <div className="search-portfolio">
@@ -58,6 +63,17 @@ const SearchPortfolio = () => {
                     <p>{project.description}</p>
                   </div>
                 ))}
+              </div>
+            </div>
+            <div className="cv-section">
+              <h3>CV</h3>
+              <div className="cv-actions">
+                <button
+                  onClick={() => handleCVAction("view")}
+                  className="btn view-cv-btn"
+                >
+                  View CV
+                </button>
               </div>
             </div>
             <div className="portfolio-contacts">

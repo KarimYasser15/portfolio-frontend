@@ -32,25 +32,25 @@ const Register = () => {
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required";
-    if (!formData.username.trim()) newErrors.username = "User Name is required";
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    if (!formData.password) newErrors.password = "Password is required";
-    else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-    if (!formData.title.trim()) newErrors.title = "Title is required";
-    if (!formData.bio.trim()) newErrors.bio = "Bio is required";
+  // const validateForm = () => {
+  //   const newErrors = {};
+  //   if (!formData.name.trim()) newErrors.name = "Name is required";
+  //   if (!formData.username.trim()) newErrors.username = "User Name is required";
+  //   if (!formData.email.trim()) newErrors.email = "Email is required";
+  //   if (!formData.password) newErrors.password = "Password is required";
+  //   else if (formData.password.length < 6) {
+  //     newErrors.password = "Password must be at least 6 characters";
+  //   }
+  //   if (!formData.title.trim()) newErrors.title = "Title is required";
+  //   if (!formData.bio.trim()) newErrors.bio = "Bio is required";
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  //   setErrors(newErrors);
+  //   return Object.keys(newErrors).length === 0;
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    // if (!validateForm()) return;
 
     setIsLoading(true);
     const formDataToSend = new FormData();

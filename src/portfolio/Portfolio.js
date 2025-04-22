@@ -10,7 +10,7 @@ const Portfolio = ({ mode = "create" }) => {
   const [formData, setFormData] = useState({
     projects: [{ name: "", description: "" }],
     contacts: [{ platform: "email", displayContact: "" }],
-    cv: "",
+    cv: null,
   });
   const [loading, setLoading] = useState(mode === "edit");
 
@@ -33,7 +33,7 @@ const Portfolio = ({ mode = "create" }) => {
             contacts: contacts.length
               ? contacts
               : [{ platform: "email", displayContact: "" }],
-            cv: cv || "",
+            cv: cv || null,
           });
         } catch (err) {
           alert("Failed to load portfolio");
@@ -53,6 +53,10 @@ const Portfolio = ({ mode = "create" }) => {
     setFormData({ ...formData, [group]: updated });
   };
 
+  const handleFileChange = (e) => {
+    setFormData({ ...formData, cv: e.target.files[0] });
+  };
+
   const addItem = (group, defaultItem) =>
     setFormData({ ...formData, [group]: [...formData[group], defaultItem] });
 
@@ -67,15 +71,25 @@ const Portfolio = ({ mode = "create" }) => {
     try {
       const portfolioEndPoint =
         process.env.REACT_APP_BASE_URL + `portfolio/${userData.userId}`;
+
       if (mode === "create") {
+        const submitData = new FormData();
+        submitData.append("cv", formData.cv);
+        submitData.append("projects", JSON.stringify(formData.projects));
+        submitData.append("contacts", JSON.stringify(formData.contacts));
+
         await axios.post(portfolioEndPoint, formData, {
-          headers: { Authorization: "Bearer " + userData.token },
+          headers: {
+            Authorization: "Bearer " + userData.token,
+            "Content-Type": "multipart/form-data",
+          },
         });
       } else {
         await axios.put(portfolioEndPoint, formData, {
           headers: { Authorization: "Bearer " + userData.token },
         });
       }
+
       navigate("/home");
     } catch (err) {
       alert(err.response?.data?.message || "Something went wrong");
@@ -192,6 +206,18 @@ const Portfolio = ({ mode = "create" }) => {
             + Add Another Contact
           </button>
         </div>
+
+        {mode === "create" && (
+          <div className="form-section">
+            <h2>Upload CV</h2>
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={handleFileChange}
+              required
+            />
+          </div>
+        )}
 
         <div className="form-actions">
           <button type="submit" className="add-btn">

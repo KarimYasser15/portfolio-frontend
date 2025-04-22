@@ -39,7 +39,8 @@ const Home = () => {
 
     try {
       const deleteEndpoint =
-        process.env.REACT_APP_BASE_URL + `portfolio/${userData.userName}`;
+        process.env.REACT_APP_BASE_URL + `portfolio/${userData.userId}`;
+      console.log(userData.userId);
 
       await axios.delete(deleteEndpoint, {
         headers: {
@@ -55,6 +56,11 @@ const Home = () => {
           "Something went wrong while deleting portfolio"
       );
     }
+  };
+  const handleCVAction = (action = "view") => {
+    if (!portfolio?.portfolioExist?.cv) return;
+
+    window.open(portfolio.portfolioExist.cv, "_blank");
   };
 
   return (
@@ -138,6 +144,19 @@ const Home = () => {
                   ))}
                 </div>
               </div>
+              {portfolio.portfolioExist.cv && (
+                <div className="cv-section">
+                  <h3>CV</h3>
+                  <div className="cv-actions">
+                    <button
+                      onClick={() => handleCVAction("view")}
+                      className="btn view-cv-btn"
+                    >
+                      View CV
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div className="portfolio-contacts">
                 <h3>Contact</h3>
