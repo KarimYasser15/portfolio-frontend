@@ -27,13 +27,8 @@ const Portfolio = ({ mode = "create" }) => {
           });
           const { projects, contacts, cv } = res.data.portfolioExist;
           setFormData({
-            projects: projects.length
-              ? projects
-              : [{ name: "", description: "" }],
-            contacts: contacts.length
-              ? contacts
-              : [{ platform: "email", displayContact: "" }],
-            cv: cv || null,
+            projects: projects,
+            contacts: contacts,
           });
         } catch (err) {
           alert("Failed to load portfolio");
@@ -111,27 +106,23 @@ const Portfolio = ({ mode = "create" }) => {
           {formData.projects.map((project, index) => (
             <div key={index} className="project-input-group">
               <div className="input-row">
-                <label>
-                  Project Name:
-                  <input
-                    type="text"
-                    name="name"
-                    value={project.name}
-                    onChange={(e) => handleChange("projects", index, e)}
-                    required
-                  />
-                </label>
+                <label>Project Name:</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={project.name}
+                  onChange={(e) => handleChange("projects", index, e)}
+                  required
+                />
               </div>
               <div className="input-row">
-                <label>
-                  Description:
-                  <textarea
-                    name="description"
-                    value={project.description}
-                    onChange={(e) => handleChange("projects", index, e)}
-                    required
-                  />
-                </label>
+                <label>Description:</label>
+                <textarea
+                  name="description"
+                  value={project.description}
+                  onChange={(e) => handleChange("projects", index, e)}
+                  required
+                />
               </div>
               {formData.projects.length > 1 && (
                 <button
@@ -158,32 +149,28 @@ const Portfolio = ({ mode = "create" }) => {
           {formData.contacts.map((contact, index) => (
             <div key={index} className="contact-input-group">
               <div className="input-row">
-                <label>
-                  Platform:
-                  <select
-                    name="platform"
-                    value={contact.platform}
-                    onChange={(e) => handleChange("contacts", index, e)}
-                  >
-                    <option value="email">Email</option>
-                    <option value="phone">Phone</option>
-                    <option value="linkedin">LinkedIn</option>
-                    <option value="github">GitHub</option>
-                    <option value="other">Other</option>
-                  </select>
-                </label>
+                <label>Platform:</label>
+                <select
+                  name="platform"
+                  value={contact.platform}
+                  onChange={(e) => handleChange("contacts", index, e)}
+                >
+                  <option value="email">Email</option>
+                  <option value="phone">Phone</option>
+                  <option value="linkedin">LinkedIn</option>
+                  <option value="github">GitHub</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
               <div className="input-row">
-                <label>
-                  Contact Info:
-                  <input
-                    type="text"
-                    name="displayContact"
-                    value={contact.displayContact}
-                    onChange={(e) => handleChange("contacts", index, e)}
-                    required
-                  />
-                </label>
+                <label>Contact Info:</label>
+                <input
+                  type="text"
+                  name="displayContact"
+                  value={contact.displayContact}
+                  onChange={(e) => handleChange("contacts", index, e)}
+                  required
+                />
               </div>
               {formData.contacts.length > 1 && (
                 <button
@@ -226,7 +213,7 @@ const Portfolio = ({ mode = "create" }) => {
           <button
             type="button"
             onClick={() => navigate("/home")}
-            className="cancel-btn"
+            className="remove-btn"
           >
             Cancel
           </button>

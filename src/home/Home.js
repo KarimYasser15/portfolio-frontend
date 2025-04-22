@@ -14,10 +14,12 @@ const Home = () => {
   useEffect(() => {
     const fetchPortfolio = async () => {
       try {
-        console.log("test");
-        const ipRes = await axios.get("https://api.ipify.org?format=json");
+        const ipRes = await axios.get(
+          `https://corsproxy.io/?${encodeURIComponent(
+            "https://api.ipify.org?format=json"
+          )}`
+        );
         const userIp = ipRes.data.ip;
-        console.log(userIp);
         const getPortfolioEndPoint =
           process.env.REACT_APP_BASE_URL + `portfolio/${userData.userName}`;
         const response = await axios.get(getPortfolioEndPoint, {
@@ -27,9 +29,7 @@ const Home = () => {
           },
         });
         setPortfolio(response.data?.portfolioExist ? response.data : null);
-        console.log(response.data.portfolioExist.numberOfView);
       } catch (err) {
-        console.log(err);
         setError(err.response?.data?.message || "Failed to fetch portfolio");
         setPortfolio(null);
       } finally {
@@ -47,8 +47,6 @@ const Home = () => {
     try {
       const deleteEndpoint =
         process.env.REACT_APP_BASE_URL + `portfolio/${userData.userId}`;
-      console.log(userData.userId);
-
       await axios.delete(deleteEndpoint, {
         headers: {
           Authorization: "Bearer " + userData.token,
@@ -57,12 +55,7 @@ const Home = () => {
 
       setPortfolio(null);
       alert("Portfolio deleted successfully");
-    } catch (err) {
-      alert(
-        err.response?.data?.message ||
-          "Something went wrong while deleting portfolio"
-      );
-    }
+    } catch (err) {}
   };
   const handleCVAction = (action = "view") => {
     if (!portfolio?.portfolioExist?.cv) return;
@@ -93,7 +86,7 @@ const Home = () => {
             {portfolio ? "Edit Portfolio" : "Create Portfolio"}
           </button>
           {portfolio && (
-            <button onClick={handleDeletePortfolio} className="btn delete-btn">
+            <button onClick={handleDeletePortfolio} className="btn logout-btn">
               Delete Portfolio
             </button>
           )}
@@ -109,22 +102,21 @@ const Home = () => {
         </div>
       </div>
 
-      <main className="main">
-        <div className="main-container">
-          <div className="portfolio-header-with-images">
+      <div className="main-container">
+        <div className="portfolio-header">
+          <div className="profile-info">
             {userData.coverPicture && (
               <div className="cover-image">
                 {userData.coverPicture && (
                   <img
                     src={userData.coverPicture}
-                    alt="Profile"
-                    className="profile-img"
+                    alt="Cover"
+                    className="cover-img"
                   />
                 )}
               </div>
             )}
-
-            <div className="profile-info">
+            <div className="profile-image">
               {userData.profilePicture && (
                 <img
                   src={userData.profilePicture}
@@ -132,73 +124,71 @@ const Home = () => {
                   className="profile-img"
                 />
               )}
-              <h1>{userData.fullName}</h1>
-              <h2>{userData.title}</h2>
-              <h3>{userData.bio}</h3>
+            </div>
+            <h1>Name: {userData.fullName}</h1>
+            <h2>Job Title: {userData.title}</h2>
+            <h3>Bio: {userData.bio}</h3>
+          </div>
+        </div>
+        {portfolio ? (
+          <div className="portfolio-card">
+            <h4>
+              Number Of Views:{" "}
+              {
+                new Map(
+                  Object.entries(portfolio?.portfolioExist?.numberOfView || {})
+                ).size
+              }
+            </h4>
+            <div className="portfolio-projects">
+              <div className="projects-grid">
+                {portfolio.portfolioExist.projects.map((project) => (
+                  <div key={project._id} className="project">
+                    <h3>Projects</h3>
+                    <h4>{project.name}</h4>
+                    <p>{project.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {portfolio.portfolioExist.cv && (
+              <div className="cv-section">
+                <h3>CV</h3>
+                <div className="cv-actions">
+                  <button
+                    onClick={() => handleCVAction("view")}
+                    className="btn view-cv-btn"
+                  >
+                    View CV
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="portfolio-contacts">
+              <h3>Contact</h3>
+              <div className="contacts-list">
+                {portfolio.portfolioExist.contacts.map((contact) => (
+                  <div key={contact._id} className="contact-badge">
+                    {contact.platform}: {contact.displayContact}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-          {portfolio ? (
-            <div className="portfolio-card">
-              <h4>
-                Number Of Views:{" "}
-                {
-                  new Map(
-                    Object.entries(
-                      portfolio?.portfolioExist?.numberOfView || {}
-                    )
-                  ).size
-                }
-              </h4>
-              <div className="portfolio-projects">
-                <div className="projects-grid">
-                  {portfolio.portfolioExist.projects.map((project) => (
-                    <div key={project._id} className="project">
-                      <h3>Projects</h3>
-                      <h4>{project.name}</h4>
-                      <p>{project.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {portfolio.portfolioExist.cv && (
-                <div className="cv-section">
-                  <h3>CV</h3>
-                  <div className="cv-actions">
-                    <button
-                      onClick={() => handleCVAction("view")}
-                      className="btn view-cv-btn"
-                    >
-                      View CV
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              <div className="portfolio-contacts">
-                <h3>Contact</h3>
-                <div className="contacts-list">
-                  {portfolio.portfolioExist.contacts.map((contact) => (
-                    <div key={contact._id} className="contact-badge">
-                      {contact.platform}: {contact.displayContact}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="empty-state">
-              <h3>No portfolio found</h3>
-              <p>Get started by creating your portfolio</p>
-              <button
-                onClick={() => navigate("/create-portfolio")}
-                className="btn create-btn"
-              >
-                Create Portfolio
-              </button>
-            </div>
-          )}
-        </div>
-      </main>
+        ) : (
+          <div className="empty-state">
+            <h3>No portfolio found</h3>
+            <p>Get started by creating your portfolio</p>
+            <button
+              onClick={() => navigate("/create-portfolio")}
+              className="btn create-btn"
+            >
+              Create Portfolio
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
