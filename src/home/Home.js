@@ -14,15 +14,22 @@ const Home = () => {
   useEffect(() => {
     const fetchPortfolio = async () => {
       try {
+        console.log("test");
+        const ipRes = await axios.get("https://api.ipify.org?format=json");
+        const userIp = ipRes.data.ip;
+        console.log(userIp);
         const getPortfolioEndPoint =
           process.env.REACT_APP_BASE_URL + `portfolio/${userData.userName}`;
         const response = await axios.get(getPortfolioEndPoint, {
           headers: {
             Authorization: "Bearer " + userData.token,
+            "X-Client-userP": userIp,
           },
         });
         setPortfolio(response.data?.portfolioExist ? response.data : null);
+        console.log(response.data.portfolioExist.numberOfView);
       } catch (err) {
+        console.log(err);
         setError(err.response?.data?.message || "Failed to fetch portfolio");
         setPortfolio(null);
       } finally {
@@ -132,12 +139,21 @@ const Home = () => {
           </div>
           {portfolio ? (
             <div className="portfolio-card">
-              <p>Views:{portfolio.portfolioExist.numberOfView.length}</p>
+              <h4>
+                Number Of Views:{" "}
+                {
+                  new Map(
+                    Object.entries(
+                      portfolio?.portfolioExist?.numberOfView || {}
+                    )
+                  ).size
+                }
+              </h4>
               <div className="portfolio-projects">
-                <h3>Projects</h3>
                 <div className="projects-grid">
                   {portfolio.portfolioExist.projects.map((project) => (
                     <div key={project._id} className="project">
+                      <h3>Projects</h3>
                       <h4>{project.name}</h4>
                       <p>{project.description}</p>
                     </div>
