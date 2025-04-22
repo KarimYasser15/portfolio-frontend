@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import FieldInput from "./FieldInput";
+import "./Auth.css";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -39,10 +39,7 @@ const Login = () => {
     setIsLoading(true);
     try {
       const loginEndPoint = process.env.REACT_APP_BASE_URL + "auth/login";
-      const response = await axios.post(loginEndPoint, {
-        email: formData.email,
-        password: formData.password,
-      });
+      const response = await axios.post(loginEndPoint, formData);
 
       localStorage.setItem("user", JSON.stringify(response.data));
       navigate("/home");
@@ -57,41 +54,48 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
-      <h2>Create Account</h2>
-      {errors.api && <div className="error-message">{errors.api}</div>}
+    <div className="auth-wrapper">
+      <div className="form-box">
+        <form className="form" onSubmit={handleSubmit}>
+          <span className="title">Login</span>
 
-      <form onSubmit={handleSubmit}>
-        <FieldInput
-          label="Email Address"
-          type="email"
-          id="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          error={errors.email}
-          placeholder="Enter your email"
-          required
-        />
-        <FieldInput
-          label="Password"
-          type="password"
-          id="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          error={errors.password}
-          placeholder="Enter your password"
-          required
-        />
+          {errors.api && <div className="error-message">{errors.api}</div>}
 
-        <button type="submit" className="auth-button" disabled={isLoading}>
-          {isLoading ? "Login Account..." : "Login"}
-        </button>
-      </form>
+          <div className="form-container">
+            <div className="form-group">
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                error={errors.email}
+                placeholder="Email"
+                className="input"
+                required
+              />
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                error={errors.password}
+                placeholder="Password"
+                className="input"
+                required
+              />
+            </div>
+          </div>
 
-      <div className="auth-footer">
-        Don't have an account? <Link to="/register">Sign Up</Link>
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Login"}
+          </button>
+
+          <div className="form-section">
+            Don't have an account? <Link to="/register">Sign up</Link>
+          </div>
+        </form>
       </div>
     </div>
   );

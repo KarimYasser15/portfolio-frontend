@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import FieldInput from "./FieldInput";
+import "./Auth.css";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -11,19 +11,27 @@ const Register = () => {
     bio: "",
     email: "",
     password: "",
+    files: [],
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    const { name, value, type, files } = e.target;
+    if (type === "file") {
+      setFormData({
+        ...formData,
+        files: [...formData.files, ...files],
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
-  console.log(process.env);
+
   const validateForm = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = "Name is required";
@@ -34,7 +42,7 @@ const Register = () => {
       newErrors.password = "Password must be at least 6 characters";
     }
     if (!formData.title.trim()) newErrors.title = "Title is required";
-    if (!formData.bio.trim()) newErrors.title = "Bio is required";
+    if (!formData.bio.trim()) newErrors.bio = "Bio is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -45,22 +53,25 @@ const Register = () => {
     if (!validateForm()) return;
 
     setIsLoading(true);
+    const formDataToSend = new FormData();
+    formDataToSend.append("fullName", formData.name);
+    formDataToSend.append("email", formData.email);
+    formDataToSend.append("userName", formData.username);
+    formDataToSend.append("bio", formData.bio);
+    formDataToSend.append("title", formData.title);
+    formDataToSend.append("password", formData.password);
+
+    formData.files.forEach((file) => {
+      formDataToSend.append("files", file);
+    });
+
     try {
       const registerEndPoint = process.env.REACT_APP_BASE_URL + "auth/register";
-      console.log(registerEndPoint);
-      const response = await axios.post(registerEndPoint, {
-        fullName: formData.name,
-        email: formData.email,
-        userName: formData.username,
-        bio: formData.bio,
-        title: formData.title,
-        profilePic: "",
-        password: formData.password,
+      const response = await axios.post(registerEndPoint, formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
-
-      localStorage.setItem("token", response.data.token);
-      console.log("Registered");
-
       navigate("/login");
     } catch (error) {
       console.error("Registration error:", error);
@@ -76,87 +87,98 @@ const Register = () => {
   };
 
   return (
-    <div className="auth-container">
-      <h2>Create Account</h2>
-      {errors.api && <div className="error-message">{errors.api}</div>}
+    <div className="auth-wrapper">
+      <div className="form-box">
+        <form className="form" onSubmit={handleSubmit}>
+          <span className="title">Register</span>
 
-      <form onSubmit={handleSubmit}>
-        <FieldInput
-          label="Full Name"
-          type="text"
-          id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          error={errors.name}
-          placeholder="Enter your full name"
-          required
-        />
-        <FieldInput
-          label="User Name"
-          type="text"
-          id="username"
-          name="username"
-          value={formData.username}
-          onChange={handleChange}
-          error={errors.username}
-          placeholder="Enter your User Name"
-          required
-        />
+          {errors.api && <div className="error-message">{errors.api}</div>}
 
-        <FieldInput
-          label="Job Title"
-          type="text"
-          id="title"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          error={errors.title}
-          placeholder="Enter your Job Title"
-          required
-        />
+          <div className="form-container">
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Full Name"
+              className="input"
+              required
+            />
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              placeholder="User Name"
+              className="input"
+              required
+            />
+            <input
+              type="text"
+              id="title"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              placeholder="Job Title"
+              className="input"
+              required
+            />
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Email"
+              className="input"
+              required
+            />
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Password"
+              className="input"
+              required
+            />
+            <input
+              type="text"
+              id="bio"
+              name="bio"
+              value={formData.bio}
+              onChange={handleChange}
+              placeholder="Bio"
+              className="input"
+              required
+            />
+            <input
+              type="file"
+              id="profilePic"
+              name="profilePic"
+              onChange={handleChange}
+              className="input"
+            />
+            <input
+              type="file"
+              id="coverPic"
+              name="coverPic"
+              onChange={handleChange}
+              className="input"
+            />
+          </div>
 
-        <FieldInput
-          label="Email Address"
-          type="email"
-          id="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          error={errors.email}
-          placeholder="Enter your email"
-          required
-        />
-        <FieldInput
-          label="Password"
-          type="password"
-          id="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          error={errors.password}
-          placeholder="Enter your password"
-          required
-        />
-        <FieldInput
-          label="Bio"
-          type="text"
-          id="bio"
-          name="bio"
-          value={formData.bio}
-          onChange={handleChange}
-          error={errors.bio}
-          placeholder="Describe your self"
-          required
-        />
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? "Creating Account..." : "Register"}
+          </button>
 
-        <button type="submit" className="auth-button" disabled={isLoading}>
-          {isLoading ? "Creating Account..." : "Register"}
-        </button>
-      </form>
-
-      <div className="auth-footer">
-        Already have an account? <Link to="/login">Log in</Link>
+          <div className="form-section">
+            Already have an account? <Link to="/login">Log in</Link>
+          </div>
+        </form>
       </div>
     </div>
   );
