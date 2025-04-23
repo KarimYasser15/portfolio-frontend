@@ -31,7 +31,6 @@ const Portfolio = ({ mode = "create" }) => {
             contacts: contacts,
           });
         } catch (err) {
-          alert("Failed to load portfolio");
         } finally {
           setLoading(false);
         }
@@ -86,9 +85,7 @@ const Portfolio = ({ mode = "create" }) => {
       }
 
       navigate("/home");
-    } catch (err) {
-      alert(err.response?.data?.message || "Something went wrong");
-    }
+    } catch (err) {}
   };
 
   if (loading)

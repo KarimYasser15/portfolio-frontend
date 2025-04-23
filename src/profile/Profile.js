@@ -21,16 +21,24 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const endpoint =
+        const getProfileEndPoint =
           process.env.REACT_APP_BASE_URL + `profile/${userData.userId}`;
-        const res = await axios.get(endpoint, {
+        const res = await axios.get(getProfileEndPoint, {
           headers: {
             Authorization: "Bearer " + userData.token,
           },
         });
 
-        const { email, fullName, password, userName, title, bio, profilePic } =
-          res.data;
+        const {
+          email,
+          fullName,
+          password,
+          userName,
+          title,
+          bio,
+          profilePic,
+          coverPic,
+        } = res.data;
 
         setFormData({
           email: email || "",
@@ -40,10 +48,9 @@ const Profile = () => {
           title: title || "",
           bio: bio || "",
           profilePic: profilePic || "",
+          coverPic: coverPic || "",
         });
       } catch (err) {
-        console.error("Failed to load profile", err);
-        alert("Failed to load profile");
       } finally {
         setLoading(false);
       }
@@ -59,20 +66,17 @@ const Profile = () => {
     e.preventDefault();
 
     try {
-      const endpoint =
+      const updateProfileEndPoint =
         process.env.REACT_APP_BASE_URL + `profile/${userData.userId}`;
 
-      await axios.put(endpoint, formData, {
+      await axios.put(updateProfileEndPoint, formData, {
         headers: {
           Authorization: "Bearer " + userData.token,
         },
       });
 
       navigate("/home");
-    } catch (err) {
-      console.error("Update failed:", err);
-      alert(err.response?.data?.message || "Something went wrong");
-    }
+    } catch (err) {}
   };
 
   if (loading) return <div className="profile-container">Loading...</div>;
@@ -138,17 +142,6 @@ const Profile = () => {
         <label>
           Bio:
           <textarea name="bio" value={formData.bio} onChange={handleChange} />
-        </label>
-
-        <label>
-          Profile Picture URL:
-          <input
-            type="url"
-            name="profilePic"
-            value={formData.profilePic}
-            onChange={handleChange}
-            placeholder="https://example.com/my-pic.jpg"
-          />
         </label>
 
         <div className="form-actions">

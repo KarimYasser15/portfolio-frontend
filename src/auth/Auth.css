@@ -86,3 +86,14 @@
   .form button:hover {
     background-color: #005ce6;
   }
+
+.error-message {
+  color: #ff4757;
+  font-size: 0.75rem;
+  padding: 4px 15px 8px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  line-height: 1.3;
+}

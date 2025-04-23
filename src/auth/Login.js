@@ -18,14 +18,23 @@ const Login = () => {
       ...formData,
       [name]: value,
     });
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: null,
+      });
+    }
   };
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    if (!formData.password) newErrors.password = "Password is required";
-    else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Password is required";
     }
 
     setErrors(newErrors);
@@ -59,7 +68,7 @@ const Login = () => {
         <form className="form" onSubmit={handleSubmit}>
           <span className="title">Login</span>
 
-          {errors.api && <div className="error-message">{errors.api}</div>}
+          {errors.api && <div className="api-error">{errors.api}</div>}
 
           <div className="form-container">
             <div className="form-group">
@@ -69,22 +78,25 @@ const Login = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                error={errors.email}
                 placeholder="Email"
-                className="input"
-                required
+                className={`input ${errors.email ? "error" : ""}`}
               />
+              {errors.email && (
+                <div className="error-message show">{errors.email}</div>
+              )}
+
               <input
                 type="password"
                 id="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                error={errors.password}
                 placeholder="Password"
-                className="input"
-                required
+                className={`input ${errors.password ? "error" : ""}`}
               />
+              {errors.password && (
+                <div className="error-message show">{errors.password}</div>
+              )}
             </div>
           </div>
 

@@ -5,6 +5,7 @@ import "./Home.css";
 
 const Home = () => {
   const [portfolio, setPortfolio] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const userData = JSON.parse(localStorage.getItem("user"));
@@ -12,13 +13,17 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPortfolio = async () => {
+    const fetchData = async () => {
       try {
-        const ipRes = await axios.get(
-          `https://corsproxy.io/?${encodeURIComponent(
-            "https://api.ipify.org?format=json"
-          )}`
-        );
+        const getProfileEndPoint =
+          process.env.REACT_APP_BASE_URL + `profile/${userData.userId}`;
+        const res = await axios.get(getProfileEndPoint, {
+          headers: {
+            Authorization: "Bearer " + userData.token,
+          },
+        });
+        setProfile(res.data);
+        const ipRes = await axios.get("https://api.ipify.org?format=json");
         const userIp = ipRes.data.ip;
         const getPortfolioEndPoint =
           process.env.REACT_APP_BASE_URL + `portfolio/${userData.userName}`;
@@ -37,7 +42,7 @@ const Home = () => {
       }
     };
 
-    fetchPortfolio();
+    fetchData();
   }, []);
 
   const handleDeletePortfolio = async () => {
@@ -54,7 +59,6 @@ const Home = () => {
       });
 
       setPortfolio(null);
-      alert("Portfolio deleted successfully");
     } catch (err) {}
   };
   const handleCVAction = (action = "view") => {
@@ -104,31 +108,33 @@ const Home = () => {
 
       <div className="main-container">
         <div className="portfolio-header">
-          <div className="profile-info">
-            {userData.coverPicture && (
-              <div className="cover-image">
-                {userData.coverPicture && (
+          {profile ? (
+            <div className="profile-info">
+              {profile.coverPicture && (
+                <div className="cover-image">
+                  {profile.coverPicture && (
+                    <img
+                      src={profile.coverPicture}
+                      alt="Cover"
+                      className="cover-img"
+                    />
+                  )}
+                </div>
+              )}
+              <div className="profile-image">
+                {profile.profilePicture && (
                   <img
-                    src={userData.coverPicture}
-                    alt="Cover"
-                    className="cover-img"
+                    src={profile.profilePicture}
+                    alt="Profile"
+                    className="profile-img"
                   />
                 )}
               </div>
-            )}
-            <div className="profile-image">
-              {userData.profilePicture && (
-                <img
-                  src={userData.profilePicture}
-                  alt="Profile"
-                  className="profile-img"
-                />
-              )}
+              <h1>Name: {profile.fullName}</h1>
+              <h2>Job Title: {profile.title}</h2>
+              <h3>Bio: {profile.bio}</h3>
             </div>
-            <h1>Name: {userData.fullName}</h1>
-            <h2>Job Title: {userData.title}</h2>
-            <h3>Bio: {userData.bio}</h3>
-          </div>
+          ) : null}
         </div>
         {portfolio ? (
           <div className="portfolio-card">

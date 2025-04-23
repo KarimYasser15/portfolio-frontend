@@ -11,7 +11,8 @@ const Register = () => {
     bio: "",
     email: "",
     password: "",
-    files: [],
+    profilePic: null,
+    coverPic: null,
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -20,37 +21,72 @@ const Register = () => {
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
     if (type === "file") {
-      setFormData({
-        ...formData,
-        files: [...formData.files, ...files],
-      });
+      if (name === "profilePic") {
+        setFormData({ ...formData, profilePic: files[0] });
+      } else if (name === "coverPic") {
+        setFormData({ ...formData, coverPic: files[0] });
+      }
     } else {
       setFormData({
         ...formData,
         [name]: value,
       });
+      if (errors[name]) {
+        setErrors({
+          ...errors,
+          [name]: null,
+        });
+      }
     }
   };
 
-  // const validateForm = () => {
-  //   const newErrors = {};
-  //   if (!formData.name.trim()) newErrors.name = "Name is required";
-  //   if (!formData.username.trim()) newErrors.username = "User Name is required";
-  //   if (!formData.email.trim()) newErrors.email = "Email is required";
-  //   if (!formData.password) newErrors.password = "Password is required";
-  //   else if (formData.password.length < 6) {
-  //     newErrors.password = "Password must be at least 6 characters";
-  //   }
-  //   if (!formData.title.trim()) newErrors.title = "Title is required";
-  //   if (!formData.bio.trim()) newErrors.bio = "Bio is required";
+  const validateForm = () => {
+    const newErrors = {};
 
-  //   setErrors(newErrors);
-  //   return Object.keys(newErrors).length === 0;
-  // };
+    if (!formData.name.trim()) {
+      newErrors.name = "Full name is required";
+    }
+
+    if (!formData.username.trim()) {
+      newErrors.username = "Username is required";
+    }
+
+    if (!formData.title.trim()) {
+      newErrors.title = "Job title is required";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    if (!formData.bio.trim()) {
+      newErrors.bio = "Bio is required";
+    }
+
+    if (!formData.profilePic) {
+      newErrors.profilePic = "Profile photo is required";
+    } else if (!formData.profilePic.type.match("image.*")) {
+      newErrors.profilePic = "Only image files are allowed for profile photo";
+    }
+    if (!formData.coverPic) {
+      newErrors.coverPic = "Profile photo is required";
+    } else if (formData.coverPic && !formData.coverPic.type.match("image.*")) {
+      newErrors.coverPic = "Only image files are allowed for cover photo";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // if (!validateForm()) return;
+    if (!validateForm()) return;
 
     setIsLoading(true);
     const formDataToSend = new FormData();
@@ -61,9 +97,12 @@ const Register = () => {
     formDataToSend.append("title", formData.title);
     formDataToSend.append("password", formData.password);
 
-    formData.files.forEach((file) => {
-      formDataToSend.append("files", file);
-    });
+    if (formData.profilePic) {
+      formDataToSend.append("files", formData.profilePic);
+    }
+    if (formData.coverPic) {
+      formDataToSend.append("files", formData.coverPic);
+    }
 
     try {
       const registerEndPoint = process.env.REACT_APP_BASE_URL + "auth/register";
@@ -74,7 +113,6 @@ const Register = () => {
       });
       navigate("/login");
     } catch (error) {
-      console.error("Registration error:", error);
       setErrors({
         ...errors,
         api:
@@ -102,9 +140,10 @@ const Register = () => {
               value={formData.name}
               onChange={handleChange}
               placeholder="Full Name"
-              className="input"
-              required
+              className={`input ${errors.name ? "error" : ""}`}
             />
+            {errors.name && <div className="error-message">{errors.name}</div>}
+
             <input
               type="text"
               id="username"
@@ -112,9 +151,12 @@ const Register = () => {
               value={formData.username}
               onChange={handleChange}
               placeholder="User Name"
-              className="input"
-              required
+              className={`input ${errors.username ? "error" : ""}`}
             />
+            {errors.username && (
+              <div className="error-message">{errors.username}</div>
+            )}
+
             <input
               type="text"
               id="title"
@@ -122,9 +164,12 @@ const Register = () => {
               value={formData.title}
               onChange={handleChange}
               placeholder="Job Title"
-              className="input"
-              required
+              className={`input ${errors.title ? "error" : ""}`}
             />
+            {errors.title && (
+              <div className="error-message">{errors.title}</div>
+            )}
+
             <input
               type="email"
               id="email"
@@ -132,9 +177,12 @@ const Register = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Email"
-              className="input"
-              required
+              className={`input ${errors.email ? "error" : ""}`}
             />
+            {errors.email && (
+              <div className="error-message">{errors.email}</div>
+            )}
+
             <input
               type="password"
               id="password"
@@ -142,9 +190,12 @@ const Register = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Password"
-              className="input"
-              required
+              className={`input ${errors.password ? "error" : ""}`}
             />
+            {errors.password && (
+              <div className="error-message">{errors.password}</div>
+            )}
+
             <input
               type="text"
               id="bio"
@@ -152,23 +203,39 @@ const Register = () => {
               value={formData.bio}
               onChange={handleChange}
               placeholder="Bio"
-              className="input"
-              required
+              className={`input ${errors.bio ? "error" : ""}`}
             />
-            <input
-              type="file"
-              id="profilePic"
-              name="profilePic"
-              onChange={handleChange}
-              className="input"
-            />
-            <input
-              type="file"
-              id="coverPic"
-              name="coverPic"
-              onChange={handleChange}
-              className="input"
-            />
+            {errors.bio && <div className="error-message">{errors.bio}</div>}
+
+            <div className="file-input-group">
+              <label>Profile Photo</label>
+              <input
+                type="file"
+                id="profilePic"
+                name="profilePic"
+                onChange={handleChange}
+                className={`input ${errors.profilePic ? "error" : ""}`}
+                accept="image/*"
+              />
+              {errors.profilePic && (
+                <div className="error-message">{errors.profilePic}</div>
+              )}
+            </div>
+
+            <div className="file-input-group">
+              <label>Cover Photo</label>
+              <input
+                type="file"
+                id="coverPic"
+                name="coverPic"
+                onChange={handleChange}
+                className={`input ${errors.coverPic ? "error" : ""}`}
+                accept="image/*"
+              />
+              {errors.coverPic && (
+                <div className="error-message">{errors.coverPic}</div>
+              )}
+            </div>
           </div>
 
           <button type="submit" disabled={isLoading}>

@@ -1,35 +1,36 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./SearchPortfolio.css";
 
 const SearchPortfolio = () => {
   const [username, setUsername] = useState("");
-  const [result, setResult] = useState(null);
+  const [portfolio, setPortfolio] = useState(null);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
   const userData = JSON.parse(localStorage.getItem("user"));
 
   const handleSearch = async () => {
     try {
+      const ipRes = await axios.get("https://api.ipify.org?format=json");
+      const userIp = ipRes.data.ip;
       const getPortfolioEndPoint =
         process.env.REACT_APP_BASE_URL + `portfolio/${username}`;
       const response = await axios.get(getPortfolioEndPoint, {
         headers: {
           Authorization: "Bearer " + userData.token,
+          "X-Client-userP": userIp,
         },
       });
-      setResult(response.data);
+      setPortfolio(response.data);
       setError(null);
     } catch (err) {
-      setResult(null);
+      setPortfolio(null);
       setError("Portfolio not found");
     }
   };
   const handleCVAction = (action = "view") => {
-    if (!result.portfolioExist?.cv) return;
+    if (!portfolio.portfolioExist?.cv) return;
 
-    window.open(result.portfolioExist.cv, "_blank");
+    window.open(portfolio.portfolioExist.cv, "_blank");
   };
 
   return (
@@ -48,38 +49,67 @@ const SearchPortfolio = () => {
 
       {error && <p className="error">{error}</p>}
 
-      {result && (
-        <div className="search-result">
+      <div className="main-container">
+        <div className="portfolio-header">
+          {portfolio ? (
+            <div className="profile-info">
+              {portfolio.creatorOfPortfolio.coverPicture && (
+                <div className="cover-image">
+                  {portfolio.creatorOfPortfolio.coverPicture && (
+                    <img
+                      src={portfolio.creatorOfPortfolio.coverPicture}
+                      alt="Cover"
+                      className="cover-img"
+                    />
+                  )}
+                </div>
+              )}
+              <div className="profile-image">
+                {portfolio.creatorOfPortfolio.profilePicture && (
+                  <img
+                    src={portfolio.creatorOfPortfolio.profilePicture}
+                    alt="Profile"
+                    className="profile-img"
+                  />
+                )}
+              </div>
+              <h1>Name: {portfolio.creatorOfPortfolio.fullName}</h1>
+              <h2>Job Title: {portfolio.creatorOfPortfolio.title}</h2>
+              <h3>Bio: {portfolio.creatorOfPortfolio.bio}</h3>
+            </div>
+          ) : null}
+        </div>
+        {portfolio ? (
           <div className="portfolio-card">
-            <h3>{result.user.fullName}</h3>
-            <p>Title: {result.user.title}</p>
-            <p>Bio: {result.user.bio}</p>
-            <h4>Projects:</h4>
             <div className="portfolio-projects">
               <div className="projects-grid">
-                {result.portfolioExist.projects.map((project) => (
+                {portfolio.portfolioExist.projects.map((project) => (
                   <div key={project._id} className="project">
+                    <h3>Projects</h3>
                     <h4>{project.name}</h4>
                     <p>{project.description}</p>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="cv-section">
-              <h3>CV</h3>
-              <div className="cv-actions">
-                <button
-                  onClick={() => handleCVAction("view")}
-                  className="btn view-cv-btn"
-                >
-                  View CV
-                </button>
+            {portfolio.portfolioExist.cv && (
+              <div className="cv-section">
+                <h3>CV</h3>
+                <div className="cv-actions">
+                  <button
+                    onClick={() => handleCVAction("view")}
+                    className="btn view-cv-btn"
+                  >
+                    View CV
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
+
             <div className="portfolio-contacts">
               <h3>Contact</h3>
               <div className="contacts-list">
-                {result.portfolioExist.contacts.map((contact) => (
+                {portfolio.portfolioExist.contacts.map((contact) => (
                   <div key={contact._id} className="contact-badge">
                     {contact.platform}: {contact.displayContact}
                   </div>
@@ -87,8 +117,8 @@ const SearchPortfolio = () => {
               </div>
             </div>
           </div>
-        </div>
-      )}
+        ) : null}
+      </div>
     </div>
   );
 };
